@@ -15,11 +15,15 @@ clock = pygame.time.Clock()
 dx = 0
 speed = 1
 penalty = 0
+fscreen = [1, 2]
+button = False
+block = False
 
 WIN_WIDTH, WIN_HEIGHT = 780, 630
 BACKGROUND_COLOR = 'gray'
 
 OBJ_WIDTH = OBJ_HEIGHT = 30
+BTN_WIDTH, BTN_HEIGHT = 220, 60
 # MIN_VILUME = OBJ_HEIGHT
 x1 = (WIN_WIDTH - OBJ_WIDTH) / 2.0
 y1 = (WIN_HEIGHT - OBJ_HEIGHT) / 2.0
@@ -60,8 +64,11 @@ level = [
 
 pygame.init()
 screen = pygame.display.set_mode((WIN_WIDTH, WIN_HEIGHT))
-pygame.display.set_caption("zzz")
-text = pygame.font.SysFont('Arial', 22, True, False)
+pygame.display.set_caption("Voice Control")
+txt = pygame.font.SysFont('Arial', 22, True, False)
+text = 'ИГРАТЬ СНОВА ?'
+text_pos = txt.size(text)
+
 
 bg = pygame.Surface((WIN_WIDTH, WIN_HEIGHT))
 bg.fill(pygame.Color(BACKGROUND_COLOR))
@@ -71,6 +78,9 @@ brick.fill(pygame.Color(PLATFORM_COLOR))
 
 object1 = pygame.Surface((OBJ_WIDTH, OBJ_HEIGHT))
 object1.fill(green)
+
+btn = pygame.Surface((BTN_WIDTH, BTN_HEIGHT))
+btn.fill(green)
 
 
 def dy():
@@ -92,6 +102,32 @@ while run:
         if e.type == pygame.QUIT or e.type == pygame.KEYDOWN and e.key == pygame.K_ESCAPE:
             m.stream = False
             run = False
+        elif e.type == pygame.KEYDOWN and e.key == pygame.K_f:
+            fscreen.reverse()
+            if fscreen[0] == 1:
+                screen = pygame.display.set_mode((WIN_WIDTH, WIN_HEIGHT))
+            elif fscreen[0] == 2:
+                screen = pygame.display.set_mode((0, 0), pygame.FULLSCREEN)
+        elif e.type == pygame.MOUSEBUTTONDOWN and button is True:
+            if e.button == 1:
+                mouse_pos = pygame.mouse.get_pos()
+                if (
+                    mouse_pos[0] > (WIN_WIDTH - BTN_WIDTH) // 2
+                    and mouse_pos[0] < (WIN_WIDTH + BTN_WIDTH) // 2
+                    and mouse_pos[1] > WIN_HEIGHT // 2
+                    and mouse_pos[1] < WIN_HEIGHT // 2 + BTN_HEIGHT
+                ):
+                    print('[INFO] Кнопка нажата')
+                    penalty = 0
+                    dx = 0
+                    x1 = (WIN_WIDTH - OBJ_WIDTH) / 2.0
+
+    if button is False and block is False:
+        pygame.mouse.set_visible(False)
+        block = True
+    elif button is True and block is True:
+        pygame.mouse.set_visible(True)
+        block = False
 
     object1.fill(green)
     screen.blit(bg, (0, 0))
@@ -118,9 +154,23 @@ while run:
         y += PLATFORM_HEIGHT
         x = dx
 
-    screen.blit(object1, (x1, y1))
-    screen.blit(text.render(str(int(penalty)), True, white, None),
-                ((WIN_WIDTH-text.size(f'{int(penalty)}')[0])/2.0, 4))
+    if x1 < WIN_WIDTH - OBJ_WIDTH:
+        button = False
+        screen.blit(object1, (x1, y1))
+        screen.blit(
+            txt.render(str(round(penalty, 1)), True, white, None),
+            ((WIN_WIDTH - txt.size(f'{round(penalty, 1)}')[0]) / 2.0, 4))
+    else:
+        button = True
+        screen.blit(
+            txt.render(f'Штрафных очков: {int(penalty)}', True, red, None),
+            ((WIN_WIDTH - txt.size(f'Штрафных очков: {int(penalty)}')[0]) / 2.0,
+             WIN_HEIGHT // 2 - BTN_HEIGHT))
+        screen.blit(btn, ((WIN_WIDTH - BTN_WIDTH) // 2, WIN_HEIGHT // 2))
+        screen.blit(
+            txt.render(text, True, white, None),
+            ((WIN_WIDTH - text_pos[0]) / 2.0, (WIN_HEIGHT + BTN_HEIGHT) // 2
+             - text_pos[1] / 2.0))
     pygame.display.update()
 
 sys.exit(0)
