@@ -20,7 +20,6 @@ button = False
 block = False
 
 WIN_WIDTH, WIN_HEIGHT = 780, 630
-BACKGROUND_COLOR = 'gray'
 
 OBJ_WIDTH = OBJ_HEIGHT = 30
 BTN_WIDTH, BTN_HEIGHT = 220, 60
@@ -37,9 +36,10 @@ green = (0, 128, 0)
 red = (250, 0, 0)
 blue = (0, 0, 250)
 white = (255, 255, 255)
+BACKGROUND_COLOR = (192, 192, 192)
 
 level = [
-    # '-'*int(WIN_WIDTH/PLATFORM_WIDTH),
+    # '-' * int(WIN_WIDTH / PLATFORM_WIDTH),
     '----------------------------------------------------------------------------------------------------------------------------------',
     '-                           -                          --                        ---                                  -          -',
     '-                                                      --                                                       -                -',
@@ -68,10 +68,6 @@ pygame.display.set_caption("Voice Control")
 txt = pygame.font.SysFont('Arial', 22, True, False)
 text = 'ИГРАТЬ СНОВА ?'
 text_pos = txt.size(text)
-
-
-bg = pygame.Surface((WIN_WIDTH, WIN_HEIGHT))
-bg.fill(pygame.Color(BACKGROUND_COLOR))
 
 brick = pygame.Surface((PLATFORM_WIDTH, PLATFORM_HEIGHT))
 brick.fill(pygame.Color(PLATFORM_COLOR))
@@ -130,7 +126,7 @@ while run:
         block = False
 
     object1.fill(green)
-    screen.blit(bg, (0, 0))
+    screen.fill(BACKGROUND_COLOR)
 
     y1 = returns[0]
     x = dx
