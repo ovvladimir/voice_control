@@ -5,15 +5,15 @@ import time
 from threading import Thread
 from settings import *
 import os
-os.environ['SDL_VIDEO_CENTERED'] = '1'
+os.environ['SDL_VIDEO_WINDOW_POS'] = f'{10},{30}'
 
 m = Microphone()
 m.start()
 
+SPEED = 1
 FPS = 60
 clock = pygame.time.Clock()
 dx = 0
-speed = 1
 penalty = 0
 fscreen = [1, 2]
 button = False
@@ -21,25 +21,24 @@ block = False
 
 WIN_WIDTH, WIN_HEIGHT = 780, 630
 
-OBJ_WIDTH = OBJ_HEIGHT = 30
+BRICK_WIDTH = BRICK_HEIGHT = 30
 BTN_WIDTH, BTN_HEIGHT = 220, 60
-# MIN_VILUME = OBJ_HEIGHT
-x1 = (WIN_WIDTH - OBJ_WIDTH) / 2.0
-y1 = (WIN_HEIGHT - OBJ_HEIGHT) / 2.0
-yyy = [y1] * 10
-returns = [y1]
+OBJ_SIZE = 36
+ICON_SIZE = 32
+# MIN_VILUME = OBJ_SIZE
 
-PLATFORM_WIDTH = PLATFORM_HEIGHT = 30
-PLATFORM_COLOR = 'navy'
-
-green = (0, 128, 0)
-red = (250, 0, 0)
-blue = (0, 0, 250)
-white = (255, 255, 255)
+BRICK_COLOR = (0, 0, 128)
+BRICK_BD_COLOR = (255, 165, 0)
 BACKGROUND_COLOR = (192, 192, 192)
+GREEN = (0, 128, 0)
+RED = (250, 0, 0)
+BLUE = (0, 0, 255)
+WHITE = (255, 255, 255)
+GOLD = (255, 215, 0)
+obj_color = GREEN
 
 level = [
-    # '-' * int(WIN_WIDTH / PLATFORM_WIDTH),
+    # '-' * int(WIN_WIDTH / BRICK_WIDTH),
     '----------------------------------------------------------------------------------------------------------------------------------',
     '-                           -                          --                        ---                                  -          -',
     '-                                                      --                                                       -                -',
@@ -63,20 +62,32 @@ level = [
     '----------------------------------------------------------------------------------------------------------------------------------']
 
 pygame.init()
+icon = pygame.Surface((ICON_SIZE, ICON_SIZE), pygame.SRCALPHA)
+icon.fill((255, 255, 255))
+pygame.draw.circle(
+    icon, pygame.Color('red'), [ICON_SIZE // 2, ICON_SIZE // 2], ICON_SIZE // 2)
+pygame.display.set_icon(icon)
 screen = pygame.display.set_mode((WIN_WIDTH, WIN_HEIGHT))
 pygame.display.set_caption("Voice Control")
+
 txt = pygame.font.SysFont('Arial', 22, True, False)
 text = 'ИГРАТЬ СНОВА ?'
 text_pos = txt.size(text)
 
-brick = pygame.Surface((PLATFORM_WIDTH, PLATFORM_HEIGHT))
-brick.fill(pygame.Color(PLATFORM_COLOR))
-
-object1 = pygame.Surface((OBJ_WIDTH, OBJ_HEIGHT))
-object1.fill(green)
-
 btn = pygame.Surface((BTN_WIDTH, BTN_HEIGHT))
-btn.fill(green)
+btn.fill(GREEN)
+
+obj = pygame.Surface((OBJ_SIZE, OBJ_SIZE), pygame.SRCALPHA)
+obj_rect = obj.get_rect(center=(WIN_WIDTH // 2, WIN_HEIGHT // 2))
+yyy = [obj_rect.y] * 10
+returns = [obj_rect.y]
+
+
+def face(color):
+    pygame.draw.circle(obj, color, [OBJ_SIZE // 2, OBJ_SIZE // 2], OBJ_SIZE // 2)
+    pygame.draw.circle(obj, GOLD, [11, 14], 4)  # глаз
+    pygame.draw.circle(obj, GOLD, [25, 14], 4)  # глаз
+    pygame.draw.arc(obj, GOLD, [9, 12, 18, 18], 3.45, 6.22, 3)  # рот (от ~pi до ~pi*2)
 
 
 def dy():
@@ -90,6 +101,7 @@ def dy():
         time.sleep(0.1)
 
 
+face(obj_color)
 run = True
 Thread(target=dy).start()
 while run:
@@ -113,10 +125,14 @@ while run:
                     and mouse_pos[1] > WIN_HEIGHT // 2
                     and mouse_pos[1] < WIN_HEIGHT // 2 + BTN_HEIGHT
                 ):
-                    print('[INFO] Кнопка нажата')
+                    print('[INFO] Кнопка нажата, новая игра')
                     penalty = 0
                     dx = 0
-                    x1 = (WIN_WIDTH - OBJ_WIDTH) / 2.0
+                    obj_rect.center = WIN_WIDTH // 2, WIN_HEIGHT // 2
+                    yyy = [obj_rect.y] * 10
+                    returns = [obj_rect.y]
+                    obj_color = GREEN
+                    face(obj_color)
 
     if button is False and block is False:
         pygame.mouse.set_visible(False)
@@ -125,48 +141,55 @@ while run:
         pygame.mouse.set_visible(True)
         block = False
 
-    object1.fill(green)
-    screen.fill(BACKGROUND_COLOR)
-
-    y1 = returns[0]
+    obj_rect.y = returns[0]
     x = dx
-    if dx > -WIN_WIDTH * 4:
-        dx -= speed
-    else:
-        if x1 < WIN_WIDTH - OBJ_WIDTH:
-            x1 += speed
     y = 0
+    if dx > -WIN_WIDTH * 4:
+        dx -= SPEED
+    else:
+        if obj_rect.x < WIN_WIDTH - OBJ_SIZE:
+            obj_rect.x += SPEED
+
+    if obj_color == RED:
+        obj_color = GREEN
+        face(obj_color)
+
+    screen.fill(BACKGROUND_COLOR)
     for row in level:
         for col in row:
             if col == '-':
-                screen.blit(brick, (x, y))
-                if brick.get_rect(center=(x, y)).colliderect(object1.get_rect(center=(x1, y1))):
-                    if x1 < WIN_WIDTH - OBJ_WIDTH * 2:
-                        object1.fill(red)
+                brick = pygame.draw.rect(screen, BRICK_COLOR, [x, y, BRICK_WIDTH, BRICK_HEIGHT])
+                pygame.draw.rect(screen, BRICK_BD_COLOR, [x, y, BRICK_WIDTH, BRICK_HEIGHT], 1)
+                if brick.colliderect(obj_rect):
+                    if obj_rect.x < WIN_WIDTH - OBJ_SIZE * 2:
                         penalty += 0.1
+                        if obj_color == GREEN:
+                            obj_color = RED
+                            face(obj_color)
                     else:
-                        object1.fill(blue)
-            x += PLATFORM_WIDTH
-        y += PLATFORM_HEIGHT
+                        obj_color = BLUE
+                        face(obj_color)
+            x += BRICK_WIDTH
+        y += BRICK_HEIGHT
         x = dx
 
-    if x1 < WIN_WIDTH - OBJ_WIDTH:
+    if obj_rect.x < WIN_WIDTH - OBJ_SIZE:
         button = False
-        screen.blit(object1, (x1, y1))
+        screen.blit(obj, obj_rect)
         screen.blit(
-            txt.render(str(round(penalty, 1)), True, white, None),
+            txt.render(str(round(penalty, 1)), True, WHITE, None),
             ((WIN_WIDTH - txt.size(f'{round(penalty, 1)}')[0]) / 2.0, 4))
     else:
         button = True
         screen.blit(
-            txt.render(f'Штрафных очков: {int(penalty)}', True, red, None),
+            txt.render(f'Штрафных очков: {int(penalty)}', True, RED, None),
             ((WIN_WIDTH - txt.size(f'Штрафных очков: {int(penalty)}')[0]) / 2.0,
              WIN_HEIGHT // 2 - BTN_HEIGHT))
         screen.blit(btn, ((WIN_WIDTH - BTN_WIDTH) // 2, WIN_HEIGHT // 2))
         screen.blit(
-            txt.render(text, True, white, None),
+            txt.render(text, True, WHITE, None),
             ((WIN_WIDTH - text_pos[0]) / 2.0, (WIN_HEIGHT + BTN_HEIGHT) // 2
              - text_pos[1] / 2.0))
-    pygame.display.update()
+    pygame.display.flip()
 
 sys.exit(0)
