@@ -77,10 +77,11 @@ text_pos = txt.size(text)
 btn = pygame.Surface((BTN_WIDTH, BTN_HEIGHT))
 btn.fill(GREEN)
 
-obj = pygame.Surface((OBJ_SIZE, OBJ_SIZE), pygame.SRCALPHA)
+obj = pygame.Surface((OBJ_SIZE, OBJ_SIZE))
+obj.set_colorkey((0, 0, 0))
 obj_rect = obj.get_rect(center=(WIN_WIDTH // 2, WIN_HEIGHT // 2))
-yyy = [obj_rect.y] * 10
-returns = [obj_rect.y]
+yyy = [obj_rect.center[1]] * 10
+returns = [obj_rect.center[1]]
 
 
 def face(color):
@@ -129,8 +130,8 @@ while run:
                     penalty = 0
                     dx = 0
                     obj_rect.center = WIN_WIDTH // 2, WIN_HEIGHT // 2
-                    yyy = [obj_rect.y] * 10
-                    returns = [obj_rect.y]
+                    yyy = [obj_rect.center[1]] * 10
+                    returns = [obj_rect.center[1]]
                     obj_color = GREEN
                     face(obj_color)
 
@@ -190,6 +191,6 @@ while run:
             txt.render(text, True, WHITE, None),
             ((WIN_WIDTH - text_pos[0]) / 2.0, (WIN_HEIGHT + BTN_HEIGHT) // 2
              - text_pos[1] / 2.0))
-    pygame.display.flip()
+    pygame.display.update()
 
 sys.exit(0)
