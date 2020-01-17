@@ -1,4 +1,5 @@
 import pygame
+from pygame import gfxdraw
 import sys
 from mic import Microphone
 import time
@@ -23,16 +24,16 @@ WIN_WIDTH, WIN_HEIGHT = 780, 630
 
 BRICK_WIDTH = BRICK_HEIGHT = 30
 BTN_WIDTH, BTN_HEIGHT = 220, 60
-OBJ_SIZE = 36
+OBJ_SIZE = 40
 ICON_SIZE = 32
 # MIN_VILUME = OBJ_SIZE
 
 BRICK_COLOR = (0, 0, 128)
 BRICK_BD_COLOR = (255, 165, 0)
 BACKGROUND_COLOR = (192, 192, 192)
-GREEN = (0, 128, 0)
-RED = (250, 0, 0)
-BLUE = (0, 0, 255)
+GREEN = (0, 128, 0, 200)
+RED = (250, 0, 0, 200)
+BLUE = (0, 0, 255, 200)
 WHITE = (255, 255, 255)
 GOLD = (255, 215, 0)
 obj_color = GREEN
@@ -63,7 +64,7 @@ level = [
 
 pygame.init()
 icon = pygame.Surface((ICON_SIZE, ICON_SIZE), pygame.SRCALPHA)
-icon.fill((255, 255, 255))
+icon.fill(WHITE)
 pygame.draw.circle(
     icon, pygame.Color('red'), [ICON_SIZE // 2, ICON_SIZE // 2], ICON_SIZE // 2)
 pygame.display.set_icon(icon)
@@ -77,18 +78,26 @@ text_pos = txt.size(text)
 btn = pygame.Surface((BTN_WIDTH, BTN_HEIGHT))
 btn.fill(GREEN)
 
-obj = pygame.Surface((OBJ_SIZE, OBJ_SIZE))
-obj.set_colorkey((0, 0, 0))
+obj = pygame.Surface((OBJ_SIZE + 1, OBJ_SIZE + 1), pygame.SRCALPHA)
+# obj.set_colorkey((0, 0, 0))
 obj_rect = obj.get_rect(center=(WIN_WIDTH // 2, WIN_HEIGHT // 2))
 yyy = [obj_rect.center[1]] * 10
 returns = [obj_rect.center[1]]
 
 
 def face(color):
-    pygame.draw.circle(obj, color, [OBJ_SIZE // 2, OBJ_SIZE // 2], OBJ_SIZE // 2)
-    pygame.draw.circle(obj, GOLD, [11, 14], 4)  # глаз
-    pygame.draw.circle(obj, GOLD, [25, 14], 4)  # глаз
-    pygame.draw.arc(obj, GOLD, [9, 12, 18, 18], 3.45, 6.22, 3)  # рот (от ~pi до ~pi*2)
+    pygame.gfxdraw.aacircle(  # контур лица
+        obj, OBJ_SIZE // 2, OBJ_SIZE // 2, OBJ_SIZE // 2, color)
+    pygame.gfxdraw.filled_circle(  # лицо
+        obj, OBJ_SIZE // 2, OBJ_SIZE // 2, OBJ_SIZE // 2, color)
+    pygame.gfxdraw.aacircle(  # глаз
+        obj, OBJ_SIZE // 2 - OBJ_SIZE // 5, OBJ_SIZE // 2 - OBJ_SIZE // 8,
+        OBJ_SIZE // 13, GOLD)
+    pygame.gfxdraw.aacircle(  # глаз
+        obj, OBJ_SIZE // 2 + OBJ_SIZE // 5, OBJ_SIZE // 2 - OBJ_SIZE // 8,
+        OBJ_SIZE // 13, GOLD)
+    pygame.gfxdraw.arc(  # рот
+        obj, OBJ_SIZE // 2, OBJ_SIZE // 2, OBJ_SIZE // 2 - OBJ_SIZE // 5, 30, 150, GOLD)
 
 
 def dy():
