@@ -31,8 +31,8 @@ ICON_SIZE = 32
 BRICK_COLOR = (0, 0, 128)
 BRICK_BD_COLOR = (255, 165, 0)
 BACKGROUND_COLOR = (192, 192, 192)
-GREEN = (0, 128, 0, 200)
-RED = (250, 0, 0, 200)
+GREEN = (0, 150, 0, 200)
+RED = (255, 0, 0, 200)
 BLUE = (0, 0, 255, 200)
 WHITE = (255, 255, 255)
 GOLD = (255, 215, 0)
@@ -73,7 +73,10 @@ pygame.display.set_caption("Voice Control")
 
 txt = pygame.font.SysFont('Arial', 22, True, False)
 text = 'ИГРАТЬ СНОВА ?'
-text_pos = txt.size(text)
+text_pos_1 = ((WIN_WIDTH - txt.size(text)[0]) // 2, (WIN_HEIGHT + BTN_HEIGHT) // 2 - txt.size(text)[1] // 2)
+text_pos_2 = ((WIN_WIDTH - txt.size(f'{round(penalty, 1)}')[0]) // 2, 4)
+text_pos_3 = ((WIN_WIDTH - txt.size(f'Штрафных очков: {int(penalty)}')[0]) // 2, WIN_HEIGHT // 2 - BTN_HEIGHT)
+text_pos_4 = ((WIN_WIDTH - BTN_WIDTH) // 2, WIN_HEIGHT // 2)
 
 btn = pygame.Surface((BTN_WIDTH, BTN_HEIGHT))
 btn.fill(GREEN)
@@ -130,10 +133,8 @@ while run:
             if e.button == 1:
                 mouse_pos = pygame.mouse.get_pos()
                 if (
-                    mouse_pos[0] > (WIN_WIDTH - BTN_WIDTH) // 2
-                    and mouse_pos[0] < (WIN_WIDTH + BTN_WIDTH) // 2
-                    and mouse_pos[1] > WIN_HEIGHT // 2
-                    and mouse_pos[1] < WIN_HEIGHT // 2 + BTN_HEIGHT
+                    (WIN_WIDTH + BTN_WIDTH) // 2 > mouse_pos[0] > (WIN_WIDTH - BTN_WIDTH) // 2
+                    and WIN_HEIGHT // 2 + BTN_HEIGHT > mouse_pos[1] > WIN_HEIGHT // 2
                 ):
                     print('[INFO] Кнопка нажата, новая игра')
                     penalty = 0
@@ -186,20 +187,12 @@ while run:
     if obj_rect.x < WIN_WIDTH - OBJ_SIZE:
         button = False
         screen.blit(obj, obj_rect)
-        screen.blit(
-            txt.render(str(round(penalty, 1)), True, WHITE, None),
-            ((WIN_WIDTH - txt.size(f'{round(penalty, 1)}')[0]) / 2.0, 4))
+        screen.blit(txt.render(str(round(penalty, 1)), True, WHITE, None), text_pos_2)
     else:
         button = True
-        screen.blit(
-            txt.render(f'Штрафных очков: {int(penalty)}', True, RED, None),
-            ((WIN_WIDTH - txt.size(f'Штрафных очков: {int(penalty)}')[0]) / 2.0,
-             WIN_HEIGHT // 2 - BTN_HEIGHT))
-        screen.blit(btn, ((WIN_WIDTH - BTN_WIDTH) // 2, WIN_HEIGHT // 2))
-        screen.blit(
-            txt.render(text, True, WHITE, None),
-            ((WIN_WIDTH - text_pos[0]) / 2.0, (WIN_HEIGHT + BTN_HEIGHT) // 2
-             - text_pos[1] / 2.0))
+        screen.blit(txt.render(f'Штрафных очков: {int(penalty)}', True, RED, None), text_pos_3)
+        screen.blit(btn, text_pos_4)
+        screen.blit(txt.render(text, True, WHITE, None), text_pos_1)
     pygame.display.update()
 
 sys.exit(0)
