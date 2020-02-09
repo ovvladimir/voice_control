@@ -74,8 +74,8 @@ pygame.display.set_caption("Voice Control")
 txt = pygame.font.SysFont('Arial', 22, True, False)
 text = 'ИГРАТЬ СНОВА ?'
 text_pos_1 = ((WIN_WIDTH - txt.size(text)[0]) // 2, (WIN_HEIGHT + BTN_HEIGHT) // 2 - txt.size(text)[1] // 2)
-text_pos_2 = ((WIN_WIDTH - txt.size(f'{round(penalty, 1)}')[0]) // 2, 4)
-text_pos_3 = ((WIN_WIDTH - txt.size(f'Штрафных очков: {int(penalty)}')[0]) // 2, WIN_HEIGHT // 2 - BTN_HEIGHT)
+text_pos_2 = ((WIN_WIDTH - txt.size('0.0')[0]) // 2, 4)
+text_pos_3 = ((WIN_WIDTH - txt.size('Штрафных очков: 00')[0]) // 2, WIN_HEIGHT // 2 - BTN_HEIGHT)
 text_pos_4 = ((WIN_WIDTH - BTN_WIDTH) // 2, WIN_HEIGHT // 2)
 
 btn = pygame.Surface((BTN_WIDTH, BTN_HEIGHT))
