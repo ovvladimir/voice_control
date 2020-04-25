@@ -26,7 +26,7 @@ BRICK_WIDTH = BRICK_HEIGHT = 30
 BTN_WIDTH, BTN_HEIGHT = 220, 60
 OBJ_SIZE = 40
 ICON_SIZE = 32
-# MIN_VILUME = OBJ_SIZE
+vec = pygame.math.Vector2
 
 BRICK_COLOR = (0, 0, 128)
 BRICK_BD_COLOR = (255, 165, 0)
@@ -105,9 +105,9 @@ def face(color):
 
 def dy():
     while run:
-        yyy.append(m.volume_norm)
+        yyy.append(int(m.volume_norm))
         del yyy[0]
-        y_obj = (WIN_HEIGHT - MIN_VILUME) - sum(yyy) / len(yyy)
+        y_obj = WIN_HEIGHT - sum(yyy) // len(yyy)  # - OBJ_SIZE
         if y_obj < 0:
             y_obj = 0
         returns[0] = y_obj
@@ -171,6 +171,13 @@ while run:
             if col == '-':
                 brick = pygame.draw.rect(screen, BRICK_COLOR, [x, y, BRICK_WIDTH, BRICK_HEIGHT])
                 pygame.draw.rect(screen, BRICK_BD_COLOR, [x, y, BRICK_WIDTH, BRICK_HEIGHT], 1)
+                '''
+                rectPoints = [
+                    brick.bottomleft, brick.bottomright, brick.topleft, brick.topright,
+                    (brick.centerx, brick.top), (brick.centerx, brick.bottom),
+                    (brick.left, brick.centery), (brick.right, brick.centery)]
+                if [pos for pos in rectPoints if vec(*pos).distance_to(vec(obj_rect.center)) <= OBJ_SIZE // 2]:
+                '''
                 if brick.colliderect(obj_rect):
                     if obj_rect.x < WIN_WIDTH - OBJ_SIZE * 2:
                         penalty += 0.1
@@ -194,5 +201,6 @@ while run:
         screen.blit(btn, text_pos_4)
         screen.blit(txt.render(text, True, WHITE, None), text_pos_1)
     pygame.display.update()
+    pygame.display.set_caption(f'CAT   FPS: {int(clock.get_fps())}')
 
 sys.exit(0)
